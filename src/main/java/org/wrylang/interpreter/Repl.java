@@ -32,7 +32,7 @@ public class Repl {
                     }
                 } else {
                     while (line.trim().endsWith("\\")) {
-                        line += reader.readLine(">     ");
+                        line += reader.readLine("> ");
                     }
 
                     Lexer lexer = new Lexer(new SourceReader(new StringReader(line)));

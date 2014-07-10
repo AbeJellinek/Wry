@@ -1,5 +1,9 @@
-class Greeter(name) do
-	var greeting = "Hello, " + name + "!"
+class Greeter do
+	def init(person) do
+	    var self.name = person.name
+	    var self.greeting = "Hello, " + person.name +
+	        "! I hear you like " + person.favoriteFood + ". That's my favorite food, too!"
+	end
 end
 
-print(Greeter("Abe").greeting)
+print(Greeter({ name: "Abe", favoriteFood: "ice cream" }).greeting)

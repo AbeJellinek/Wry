@@ -262,10 +262,10 @@ public class Scope implements ExprVisitor<Obj> {
         return record;
     }
 
-    @Override
-    public Obj visit(ClassExpr expr) {
-        scopes.peek().addField(expr.getName(), new Lambda(args -> {
+    private Obj classMethod(Obj instance, DefExpr expr) {
+        return new Lambda(args -> {
             scopes.push(new Obj());
+            scopes.peek().addField("self", instance, false);
             for (int i = 0; i < args.length; i++) {
                 if (i > expr.getParams().size()) {
                     throw new IllegalArgumentException("Too many arguments to function!");
@@ -274,9 +274,28 @@ public class Scope implements ExprVisitor<Obj> {
                 scopes.peek().addField(expr.getParams().get(i), args[i], false);
             }
 
-            for (Expr line : expr.getBody()) {
-                line.accept(Scope.this);
+            Obj result = expr.getBody().accept(Scope.this);
+            scopes.pop();
+            return result;
+        });
+    }
+
+    @Override
+    public Obj visit(ClassExpr expr) {
+        scopes.peek().addField(expr.getName(), new Lambda(args -> {
+            Obj instance = new Obj();
+            scopes.push(instance);
+
+            for (DefExpr def : expr.getBody()) {
+                if (instance.hasField(expr.getName())) {
+                    throw new WryException(new RuntimeException("Redefinition of existing symbol \"" +
+                            expr.getName() + "\"."), expr.getPosition());
+                }
+
+                instance.addField(def.getName(), classMethod(instance, def), false);
             }
+
+            instance.getField("init").invoke(args);
             return scopes.pop();
         }), false);
         return Obj.NULL();
