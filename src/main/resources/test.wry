@@ -1,0 +1,5 @@
+class Greeter(name) do
+	var greeting = "Hello, " + name + "!"
+end
+
+Greeter("Abe").name
