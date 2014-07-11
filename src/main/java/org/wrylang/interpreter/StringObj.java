@@ -13,9 +13,9 @@ public class StringObj extends Obj {
 
             if (args.length > 1) {
                 NumberObj endIndex = (NumberObj) args[1];
-                return new StringObj(scope, this.getValue().substring(startIndex.getValue(), endIndex.getValue()));
+                return new StringObj(scope, this.getValue().substring(startIndex.intValue(), endIndex.intValue()));
             } else {
-                return new StringObj(scope, this.getValue().substring(startIndex.getValue()));
+                return new StringObj(scope, this.getValue().substring(startIndex.intValue()));
             }
         }), false));
     }

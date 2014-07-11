@@ -34,4 +34,6 @@ public interface ExprVisitor<R> {
     public R visit(RecordExpr expr);
 
     public R visit(ClassExpr expr);
+
+    public R visit(IfExpr expr);
 }

@@ -23,6 +23,8 @@ public class Lexer implements TokenReader {
         keywordMap.put("false", TokenType.BOOLEAN);
         keywordMap.put("null", TokenType.NULL);
         keywordMap.put("if", TokenType.IF);
+        keywordMap.put("then", TokenType.THEN);
+        keywordMap.put("else", TokenType.ELSE);
         keywordMap.put("while", TokenType.WHILE);
         keywordMap.put("class", TokenType.CLASS);
     }

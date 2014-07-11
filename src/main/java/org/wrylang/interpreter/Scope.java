@@ -14,7 +14,7 @@ public class Scope implements ExprVisitor<Obj> {
     }
 
     private int compare(Expr left, Expr right) {
-        return ((NumberObj) left.accept(this).getField("compareTo").invoke(right.accept(this))).getValue();
+        return ((NumberObj) left.accept(this).getField("compareTo").invoke(right.accept(this))).intValue();
     }
 
     @Override
@@ -295,8 +295,7 @@ public class Scope implements ExprVisitor<Obj> {
             itemArray[i] = item.accept(this);
         }
 
-        expr.getLeft().accept(this).getField("get").invoke(itemArray);
-        return null;
+        return expr.getLeft().accept(this).getField("get").invoke(itemArray);
     }
 
     @Override
@@ -319,5 +318,18 @@ public class Scope implements ExprVisitor<Obj> {
             }
         }, false);
         return Obj.NULL();
+    }
+
+    @Override
+    public Obj visit(IfExpr expr) {
+        Obj condition = expr.getCondition().accept(this);
+
+        if (condition != null && (!(condition instanceof BooleanObj) || ((BooleanObj) condition).getValue())) {
+            return expr.getThenClause().accept(this);
+        } else if (expr.getElseClause() != null) {
+            return expr.getElseClause().accept(this);
+        } else {
+            return Obj.NULL();
+        }
     }
 }

@@ -1,9 +1,9 @@
 package org.wrylang.interpreter;
 
 public class NumberObj extends Obj {
-    private final int value;
+    private final long value;
 
-    public NumberObj(Scope scope, int value) {
+    public NumberObj(Scope scope, long value) {
         super(scope.findClass("Number"));
 
         this.value = value;
@@ -30,8 +30,12 @@ public class NumberObj extends Obj {
         }), false));
     }
 
-    public int getValue() {
+    public long getValue() {
         return value;
+    }
+
+    public int intValue() {
+        return (int) value;
     }
 
     @Override

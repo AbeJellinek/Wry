@@ -7,10 +7,6 @@ public class BooleanObj extends Obj {
         super(scope.findClass("Boolean"));
         this.value = value;
 
-        fields.put("not", new Obj.ObjField(new LambdaObj(args -> {
-            checkArity(args, 0);
-            return new BooleanObj(scope, !this.getValue());
-        }), false));
         fields.put("and", new Obj.ObjField(new LambdaObj(args -> {
             checkArity(args, 1);
             BooleanObj that = (BooleanObj) args[0];

@@ -34,6 +34,7 @@ public class Parser {
         prefix(TokenType.LEFT_PAREN, new TupleParselet());
         prefix(TokenType.LEFT_BRACE, new RecordParselet());
         prefix(TokenType.CLASS, new ClassParselet());
+        prefix(TokenType.IF, new IfParselet());
 
         infix(TokenType.PLUS, Precedence.ADDITIVE);
         infix(TokenType.MINUS, Precedence.ADDITIVE);
@@ -41,6 +42,10 @@ public class Parser {
         infix(TokenType.DIVIDE, Precedence.MULTIPLICATIVE);
         infix(TokenType.EQ, Precedence.ASSIGNMENT, true);
         infix(TokenType.EQEQ, Precedence.EQUALITY);
+        infix(TokenType.GT, Precedence.COMPARISON);
+        infix(TokenType.LT, Precedence.COMPARISON);
+        infix(TokenType.GT_EQ, Precedence.COMPARISON);
+        infix(TokenType.LT_EQ, Precedence.COMPARISON);
         infix(TokenType.AND, Precedence.BITWISE_OP);
         infix(TokenType.OR, Precedence.BITWISE_OP);
         infix(TokenType.ANDAND, Precedence.LOGICAL_OP);

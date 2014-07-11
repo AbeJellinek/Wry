@@ -9,13 +9,7 @@ public class TupleObj extends Obj {
 
     public TupleObj(Scope scope, List<Obj> items) {
         super(scope.findClass("Tuple"));
-
         this.items = items;
-
-        fields.put("get", new ObjField(new LambdaObj(args -> {
-            checkArity(args, 1);
-            return items.get(((NumberObj) args[0]).getValue());
-        }), false));
     }
 
     @Override

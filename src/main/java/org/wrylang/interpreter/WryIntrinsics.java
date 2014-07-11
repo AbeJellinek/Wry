@@ -57,8 +57,18 @@ public class WryIntrinsics {
         return Obj.NULL();
     }
 
+    @Intrinsic("time")
+    public Obj time() {
+        return new NumberObj(scope, System.currentTimeMillis());
+    }
+
     @Intrinsic(value = "plus", target = "String")
-    public Obj plus(StringObj self, Obj superObj, Obj o) {
+    public Obj stringPlus(StringObj self, Obj superObj, Obj o) {
         return new StringObj(scope, self.getValue() + o);
+    }
+
+    @Intrinsic(value = "get", target = "Tuple")
+    public Obj tupleGet(TupleObj self, Obj superObj, NumberObj i) {
+        return self.getItems().get(i.intValue());
     }
 }

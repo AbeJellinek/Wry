@@ -22,8 +22,7 @@ end
 
 def person(name) is { name: name, favoriteFood: "ice cream" }
 
-def String.plusABC() is self + "ABC"
-
-print("xyz".plusABC())
-
-(Greeter(person("Abe")) + { name: "Suki", favoriteFood: "chocolate" }).printGreeting()
+if (person("Me").favoriteFood == "ice cream") then
+    print("yes!")
+else
+    print("wat")
