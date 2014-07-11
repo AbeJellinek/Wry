@@ -1,9 +1,29 @@
 class Greeter do
-	def init(person) do
-	    var self.name = person.name
-	    var self.greeting = "Hello, " + person.name +
-	        "! I hear you like " + person.favoriteFood + ". That's my favorite food, too!"
-	end
+    def init(person) do
+        var self.person = person
+        var self.greeting = "Hello, " + person.name + "! I hear you like " + person.favoriteFood +
+            ". That's my favorite food, too!"
+    end
+
+    def printGreeting(self) is print(self.greeting)
+
+    def plus(otherPerson) is TwoPersonGreeter(self.person, otherPerson)
 end
 
-print(Greeter({ name: "Abe", favoriteFood: "ice cream" }).greeting)
+class TwoPersonGreeter do
+    def init(personOne, personTwo) do
+        var self.greeting = "Hello, " + personOne.name + "! I hear you like " +
+            personOne.favoriteFood + ". And hi, " + personTwo.name + ". You like " + personTwo.favoriteFood +
+                ", right? I love that stuff!"
+    end
+
+    def printGreeting(self) is print(self.greeting)
+end
+
+def person(name) is { name: name, favoriteFood: "ice cream" }
+
+def String.plusABC() is self + "ABC"
+
+print("xyz".plusABC())
+
+(Greeter(person("Abe")) + { name: "Suki", favoriteFood: "chocolate" }).printGreeting()

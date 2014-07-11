@@ -1,30 +1,21 @@
 package org.wrylang.interpreter;
 
 import com.google.common.base.Joiner;
-import com.google.common.collect.ImmutableMap;
 
 import java.util.List;
 
 public class TupleObj extends Obj {
     private List<Obj> items;
-    private ImmutableMap<String, ObjField> fields = ImmutableMap.<String, ObjField>builder().
-            put("get", new ObjField(new Lambda(args -> {
-                checkArity(args, 1);
-                return items.get(((NumberObj) args[0]).getValue());
-            }), false)).build();
 
-    public TupleObj(List<Obj> items) {
+    public TupleObj(Scope scope, List<Obj> items) {
+        super(scope.findClass("Tuple"));
+
         this.items = items;
-    }
 
-    @Override
-    public boolean hasField(String name) {
-        return fields.containsKey(name);
-    }
-
-    @Override
-    public ObjField getFieldWrapper(String name) {
-        return fields.get(name);
+        fields.put("get", new ObjField(new LambdaObj(args -> {
+            checkArity(args, 1);
+            return items.get(((NumberObj) args[0]).getValue());
+        }), false));
     }
 
     @Override

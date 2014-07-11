@@ -11,6 +11,12 @@ public class ClassParselet implements PrefixParselet {
     @Override
     public Expr parse(Parser parser, Token token) {
         String name = parser.consume(TokenType.NAME).getText();
+        String superClass = null;
+
+        if (parser.match(TokenType.COLON)) {
+            superClass = parser.consume(TokenType.NAME).getText();
+        }
+
         parser.consume(TokenType.DO);
         List<DefExpr> body = new ArrayList<>();
         while (!parser.peek().is(TokenType.END)) {
@@ -24,6 +30,6 @@ public class ClassParselet implements PrefixParselet {
         parser.consume(TokenType.END);
         parser.endStatement();
 
-        return new ClassExpr(token.getPosition(), name, body);
+        return new ClassExpr(token.getPosition(), name, body, superClass);
     }
 }

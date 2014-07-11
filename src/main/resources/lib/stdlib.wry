@@ -1,0 +1,43 @@
+class Error do
+    def init(message) do
+        val self.message = message
+    end
+end
+
+class NativeMethodError : Error do
+    def init() do
+        super.init("Unimplemented native method.")
+    end
+end
+
+// def throw(error) is native() -- obviously impossible
+
+def native() is throw(NativeMethodError())
+
+class String do
+    def slice(startPos, endPos) is native()
+end
+
+class Tuple do
+    def get(i) is native()
+end
+
+class Boolean do
+    def not() is native()
+
+    def and(b) is native() // b is lazy
+
+    def or(b) is native()
+end
+
+class Number do
+    def plus(n) is native()
+
+    def minus(n) is native()
+
+    def times(n) is native()
+
+    def divide(n) is native()
+end
+
+def print(o) is native()

@@ -9,4 +9,5 @@ import java.lang.annotation.Target;
 @Target(ElementType.METHOD)
 public @interface Intrinsic {
     public String value();
+    public String target() default "";
 }

@@ -1,6 +1,7 @@
 package org.wrylang.interpreter;
 
 import org.wrylang.ast.*;
+import org.wrylang.parser.Position;
 
 import java.util.*;
 
@@ -8,7 +9,12 @@ public class Scope implements ExprVisitor<Obj> {
     Deque<Obj> scopes = new ArrayDeque<>();
 
     public Scope() {
-        scopes.push(new IntrinsicGenerator().generate(new WryIntrinsics()));
+        scopes.push(new Obj(null)); // dummy object for intrinsic initialization
+        scopes.push(new IntrinsicGenerator().generate(this, new WryIntrinsics(this)));
+    }
+
+    private int compare(Expr left, Expr right) {
+        return ((NumberObj) left.accept(this).getField("compareTo").invoke(right.accept(this))).getValue();
     }
 
     @Override
@@ -27,11 +33,19 @@ public class Scope implements ExprVisitor<Obj> {
                 return expr.getLeft().accept(this).getField("divide")
                         .invoke(expr.getRight().accept(this));
             case EQEQ:
-                return new BooleanObj(expr.getLeft().accept(this)
+                return new BooleanObj(this, expr.getLeft().accept(this)
                         .equals(expr.getRight().accept(this)));
             case BANG_EQ:
-                return new BooleanObj(!expr.getLeft().accept(this)
+                return new BooleanObj(this, !expr.getLeft().accept(this)
                         .equals(expr.getRight().accept(this)));
+            case LT:
+                return new BooleanObj(this, compare(expr.getLeft(), expr.getRight()) < 0);
+            case GT:
+                return new BooleanObj(this, compare(expr.getLeft(), expr.getRight()) > 0);
+            case LT_EQ:
+                return new BooleanObj(this, compare(expr.getLeft(), expr.getRight()) <= 0);
+            case GT_EQ:
+                return new BooleanObj(this, compare(expr.getLeft(), expr.getRight()) >= 0);
             case ANDAND:
                 return expr.getLeft().accept(this).getField("and")
                         .invoke(expr.getRight().accept(this));
@@ -78,7 +92,7 @@ public class Scope implements ExprVisitor<Obj> {
 
     @Override
     public Obj visit(NumberExpr expr) {
-        return new NumberObj(expr.getValue());
+        return new NumberObj(this, expr.getValue());
     }
 
     @Override
@@ -115,7 +129,7 @@ public class Scope implements ExprVisitor<Obj> {
         }
 
         scope.addField(name, expr.getDefaultValue().accept(this), expr.isMutable());
-        return Obj.NULL();
+        return Obj.NULL(name);
     }
 
     private Obj.ObjField getFieldWrapper(Expr expr) {
@@ -146,6 +160,28 @@ public class Scope implements ExprVisitor<Obj> {
         }
     }
 
+    Obj.ObjField getInScope(String right) {
+        for (Obj obj : scopes) {
+            if (obj.hasField(right)) {
+                return obj.getFieldWrapper(right);
+            }
+        }
+
+        throw new WryException(new RuntimeException("Symbol not found: \"" +
+                right + "\"."), Position.NONE);
+    }
+
+    ClassObj findClass(String name) {
+        for (Obj obj : scopes) {
+            if (obj.hasField(name)) {
+                return (ClassObj) obj.getField(name);
+            }
+        }
+
+        throw new WryException(new RuntimeException("Class not found: \"" +
+                name + "\"."), Position.NONE);
+    }
+
     @Override
     public Obj visit(SelectExpr expr) {
         return getFieldWrapper(expr).getValue();
@@ -153,14 +189,24 @@ public class Scope implements ExprVisitor<Obj> {
 
     @Override
     public Obj visit(DefExpr expr) {
-        Obj scope = scopes.peek();
+        Obj scope;
+        String name;
+        if (expr.getName() instanceof NameExpr) {
+            scope = scopes.peek();
+            name = ((NameExpr) expr.getName()).getName();
+        } else if (expr.getName() instanceof SelectExpr) {
+            scope = getFieldWrapper(((SelectExpr) expr.getName()).getLeft()).getValue();
+            name = ((SelectExpr) expr.getName()).getRight().getName();
+        } else {
+            throw new IllegalArgumentException("Invalid def left side.");
+        }
 
-        if (scope.hasField(expr.getName())) {
+        if (scope.hasField(name)) {
             throw new WryException(new RuntimeException("Redefinition of existing symbol \"" +
                     expr.getName() + "\"."), expr.getPosition());
         }
 
-        scope.addField(expr.getName(), new LambdaExpr(expr.getPosition(), expr.getParams(),
+        scope.addField(name, new LambdaExpr(expr.getPosition(), expr.getParams(),
                 expr.getBody()).accept(this), false);
 
         return Obj.NULL();
@@ -170,7 +216,7 @@ public class Scope implements ExprVisitor<Obj> {
     public Obj visit(BlockExpr expr) {
         Obj result = Obj.NULL();
 
-        scopes.push(new Obj());
+        scopes.push(new Obj(null));
         for (Expr line : expr.getBody()) {
             result = line.accept(this);
         }
@@ -188,14 +234,14 @@ public class Scope implements ExprVisitor<Obj> {
             for (Expr item : expr.getItems()) {
                 items.add(item.accept(this));
             }
-            return new TupleObj(items);
+            return new TupleObj(this, items);
         }
     }
 
     @Override
     public Obj visit(LambdaExpr expr) {
-        return new Lambda(args -> {
-            scopes.push(new Obj());
+        return new LambdaObj(args -> {
+            scopes.push(new Obj(null));
             for (int i = 0; i < args.length; i++) {
                 if (i > expr.getParams().size()) {
                     throw new IllegalArgumentException("Too many arguments to function!");
@@ -226,7 +272,7 @@ public class Scope implements ExprVisitor<Obj> {
 
     @Override
     public Obj visit(BooleanExpr expr) {
-        return new BooleanObj(expr.getValue());
+        return new BooleanObj(this, expr.getValue());
     }
 
     @Override
@@ -236,7 +282,7 @@ public class Scope implements ExprVisitor<Obj> {
 
     @Override
     public Obj visit(StringExpr expr) {
-        return new StringObj(expr.getValue());
+        return new StringObj(this, expr.getValue());
     }
 
     @Override
@@ -255,49 +301,23 @@ public class Scope implements ExprVisitor<Obj> {
 
     @Override
     public Obj visit(RecordExpr expr) {
-        Obj record = new Obj();
+        Obj record = new Obj(null);
         for (Map.Entry<String, Expr> entry : expr.getFields().entrySet()) {
             record.addField(entry.getKey(), entry.getValue().accept(this), true);
         }
         return record;
     }
 
-    private Obj classMethod(Obj instance, DefExpr expr) {
-        return new Lambda(args -> {
-            scopes.push(new Obj());
-            scopes.peek().addField("self", instance, false);
-            for (int i = 0; i < args.length; i++) {
-                if (i > expr.getParams().size()) {
-                    throw new IllegalArgumentException("Too many arguments to function!");
-                }
-
-                scopes.peek().addField(expr.getParams().get(i), args[i], false);
-            }
-
-            Obj result = expr.getBody().accept(Scope.this);
-            scopes.pop();
-            return result;
-        });
-    }
-
     @Override
     public Obj visit(ClassExpr expr) {
-        scopes.peek().addField(expr.getName(), new Lambda(args -> {
-            Obj instance = new Obj();
-            scopes.push(instance);
-
-            for (DefExpr def : expr.getBody()) {
-                if (instance.hasField(expr.getName())) {
-                    throw new WryException(new RuntimeException("Redefinition of existing symbol \"" +
-                            expr.getName() + "\"."), expr.getPosition());
-                }
-
-                instance.addField(def.getName(), classMethod(instance, def), false);
+        scopes.peek().addField(expr.getName(), new ClassObj(this, expr) {
+            @Override
+            public Obj invoke(Obj... args) {
+                Obj instance = newInstance();
+                instance.getField("init").invoke(args);
+                return instance;
             }
-
-            instance.getField("init").invoke(args);
-            return scopes.pop();
-        }), false);
+        }, false);
         return Obj.NULL();
     }
 }

@@ -1,47 +1,37 @@
 package org.wrylang.interpreter;
 
-import com.google.common.collect.ImmutableMap;
-
 public class NumberObj extends Obj {
     private final int value;
-    private ImmutableMap<String, ObjField> fields = ImmutableMap.<String, ObjField>builder().
-            put("plus", new ObjField(new Lambda(args -> {
-                checkArity(args, 1);
-                NumberObj that = (NumberObj) args[0];
-                return new NumberObj(this.getValue() + that.getValue());
-            }), false)).
-            put("minus", new ObjField(new Lambda(args -> {
-                checkArity(args, 1);
-                NumberObj that = (NumberObj) args[0];
-                return new NumberObj(this.getValue() - that.getValue());
-            }), false)).
-            put("times", new ObjField(new Lambda(args -> {
-                checkArity(args, 1);
-                NumberObj that = (NumberObj) args[0];
-                return new NumberObj(this.getValue() * that.getValue());
-            }), false)).
-            put("divide", new ObjField(new Lambda(args -> {
-                checkArity(args, 1);
-                NumberObj that = (NumberObj) args[0];
-                return new NumberObj(this.getValue() / that.getValue());
-            }), false)).build();
 
-    public NumberObj(int value) {
+    public NumberObj(Scope scope, int value) {
+        super(scope.findClass("Number"));
+
         this.value = value;
+
+        fields.put("plus", new ObjField(new LambdaObj(args -> {
+            checkArity(args, 1);
+            NumberObj that = (NumberObj) args[0];
+            return new NumberObj(scope, this.getValue() + that.getValue());
+        }), false));
+        fields.put("minus", new ObjField(new LambdaObj(args -> {
+            checkArity(args, 1);
+            NumberObj that = (NumberObj) args[0];
+            return new NumberObj(scope, this.getValue() - that.getValue());
+        }), false));
+        fields.put("times", new ObjField(new LambdaObj(args -> {
+            checkArity(args, 1);
+            NumberObj that = (NumberObj) args[0];
+            return new NumberObj(scope, this.getValue() * that.getValue());
+        }), false));
+        fields.put("divide", new ObjField(new LambdaObj(args -> {
+            checkArity(args, 1);
+            NumberObj that = (NumberObj) args[0];
+            return new NumberObj(scope, this.getValue() / that.getValue());
+        }), false));
     }
 
     public int getValue() {
         return value;
-    }
-
-    @Override
-    public boolean hasField(String name) {
-        return fields.containsKey(name);
-    }
-
-    @Override
-    public ObjField getFieldWrapper(String name) {
-        return fields.get(name);
     }
 
     @Override

@@ -7,11 +7,13 @@ import java.util.List;
 public class ClassExpr extends Expr {
     private String name;
     private List<DefExpr> body;
+    private String superClass;
 
-    public ClassExpr(Position position, String name, List<DefExpr> body) {
+    public ClassExpr(Position position, String name, List<DefExpr> body, String superClass) {
         super(position);
         this.name = name;
         this.body = body;
+        this.superClass = superClass;
     }
 
     public String getName() {
@@ -30,5 +32,9 @@ public class ClassExpr extends Expr {
 
     public List<DefExpr> getBody() {
         return body;
+    }
+
+    public String getSuperClass() {
+        return superClass;
     }
 }

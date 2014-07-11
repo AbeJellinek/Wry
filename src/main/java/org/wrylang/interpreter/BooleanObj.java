@@ -3,32 +3,23 @@ package org.wrylang.interpreter;
 public class BooleanObj extends Obj {
     private final boolean value;
 
-    public BooleanObj(boolean value) {
+    public BooleanObj(Scope scope, boolean value) {
+        super(scope.findClass("Boolean"));
         this.value = value;
 
-        fields.put("not", new Obj.ObjField(new Lambda(args -> {
+        fields.put("not", new Obj.ObjField(new LambdaObj(args -> {
             checkArity(args, 0);
-            return new BooleanObj(!this.getValue());
+            return new BooleanObj(scope, !this.getValue());
         }), false));
-        fields.put("and", new Obj.ObjField(new Lambda(args -> {
+        fields.put("and", new Obj.ObjField(new LambdaObj(args -> {
             checkArity(args, 1);
             BooleanObj that = (BooleanObj) args[0];
-            return new BooleanObj(this.getValue() && that.getValue());
+            return new BooleanObj(scope, this.getValue() && that.getValue());
         }), false));
     }
 
     public boolean getValue() {
         return value;
-    }
-
-    @Override
-    public boolean hasField(String name) {
-        return fields.containsKey(name);
-    }
-
-    @Override
-    public Obj.ObjField getFieldWrapper(String name) {
-        return fields.get(name);
     }
 
     @Override

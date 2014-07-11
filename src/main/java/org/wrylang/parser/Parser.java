@@ -13,6 +13,7 @@ public class Parser {
     private final Map<TokenType, InfixParselet> infixParselets = new HashMap<>();
     private Deque<Token> buffer = new ArrayDeque<>();
     private TokenReader lexer;
+    private boolean endStatement;
 
     public Parser(TokenReader lexer) {
         this.lexer = lexer;
@@ -81,6 +82,8 @@ public class Parser {
     }
 
     public Expr next(int precedence) {
+        endStatement = false;
+
         line();
         Token token = consume();
 
@@ -95,7 +98,7 @@ public class Parser {
 
         Expr left = prefix.parse(this, token);
 
-        while (precedence < getPrecedence()) {
+        while (!endStatement && precedence < getPrecedence()) {
             Token infixToken = consume();
 
             InfixParselet infix = infixParselets.get(infixToken.getType());
@@ -117,14 +120,15 @@ public class Parser {
     public void endStatement() {
         if (peek().is(TokenType.LINE, TokenType.EOF)) {
             line();
+            endStatement = true;
         } else {
-            throw new ParseException("Unexpected statement. " +
-                    "Use a semicolon to separate statements on the same line.", peek().getPosition());
+            throw new ParseException("Unexpected token: " + peek().getType() +
+                    ". Use a semicolon to separate statements on the same line.", peek().getPosition());
         }
     }
 
     public Expr next() {
-        return next(-1);
+        return next(0);
     }
 
     private int getPrecedence() {

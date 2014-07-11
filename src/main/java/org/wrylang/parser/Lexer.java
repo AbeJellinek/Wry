@@ -209,6 +209,20 @@ public class Lexer implements TokenReader {
                 } else {
                     return token(TokenType.OR);
                 }
+            case "<":
+                if (peek() == '=') {
+                    consume();
+                    return token(TokenType.LT_EQ);
+                } else {
+                    return token(TokenType.LT);
+                }
+            case ">":
+                if (peek() == '=') {
+                    consume();
+                    return token(TokenType.GT_EQ);
+                } else {
+                    return token(TokenType.GT);
+                }
             default:
                 return error("Invalid operator: " + read);
         }
@@ -288,7 +302,7 @@ public class Lexer implements TokenReader {
     }
 
     private boolean isOperatorChar(char c) {
-        return "+-*/!&|".indexOf(c) != -1;
+        return "+-*/!&|<>".indexOf(c) != -1;
     }
 
     private Token token(TokenType type) {

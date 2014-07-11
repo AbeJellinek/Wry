@@ -22,6 +22,8 @@ public class Elider implements TokenReader {
 
                 case DOC_COMMENT:
                 case LEFT_PAREN:
+                case LEFT_BRACE:
+                case LEFT_BRACKET:
                 case PLUS:
                 case MINUS:
                 case TIMES:

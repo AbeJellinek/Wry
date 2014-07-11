@@ -27,6 +27,8 @@ public enum TokenType {
     DIVIDE("`/`"),
     GT("`>`"),
     LT("`<`"),
+    GT_EQ("`>=`"),
+    LT_EQ("`<=`"),
     ASSOC("`->`"),
     NOT("`!`"),
     NUMBER("number"),

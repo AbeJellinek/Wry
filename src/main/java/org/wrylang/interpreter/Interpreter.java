@@ -10,19 +10,24 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 
 public class Interpreter {
-    public Obj interpret(Scope scope, Expr expr) {
+    private final Scope scope;
+
+    public Interpreter(Scope scope) {
+        this.scope = scope;
+    }
+
+    public Obj interpret(Expr expr) {
         return expr.accept(scope);
     }
 
     public static void main(String[] args) throws FileNotFoundException {
-        Scope scope = new Scope();
-        Interpreter interpreter = new Interpreter();
+        Interpreter interpreter = new Interpreter(new Scope());
         Lexer lexer = new Lexer(new SourceReader(new FileReader(args[0])));
         Parser parser = new Parser(new Elider(lexer));
 
         Expr expr;
         while ((expr = parser.next()) != null) {
-            interpreter.interpret(scope, expr);
+            interpreter.interpret(expr);
         }
     }
 }

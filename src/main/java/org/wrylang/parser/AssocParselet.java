@@ -22,7 +22,7 @@ public class AssocParselet implements InfixParselet {
             params.add(((NameExpr) left).getName());
         }
 
-        return new LambdaExpr(token.getPosition(), params, parser.next());
+        return new LambdaExpr(token.getPosition(), params, parser.next(Precedence.PREFIX));
     }
 
     @Override

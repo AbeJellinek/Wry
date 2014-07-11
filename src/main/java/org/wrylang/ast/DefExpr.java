@@ -6,18 +6,18 @@ import org.wrylang.parser.Position;
 import java.util.List;
 
 public class DefExpr extends Expr {
-    private String name;
+    private Expr name;
     private List<String> params;
     private Expr body;
 
-    public DefExpr(Position position, String name, List<String> params, Expr body) {
+    public DefExpr(Position position, Expr name, List<String> params, Expr body) {
         super(position);
         this.name = name;
         this.params = params;
         this.body = body;
     }
 
-    public String getName() {
+    public Expr getName() {
         return name;
     }
 

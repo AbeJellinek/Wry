@@ -1,11 +1,19 @@
 package org.wrylang.interpreter;
 
+import com.google.common.base.Joiner;
 import org.wrylang.parser.Position;
 
 import java.util.HashMap;
 import java.util.Map;
 
 public class Obj {
+    private ClassObj classObj;
+    private Obj superInstance;
+
+    public ClassObj getClassObj() {
+        return classObj;
+    }
+
     public static class ObjField {
         private Obj value;
         private boolean mutable;
@@ -37,10 +45,16 @@ public class Obj {
         }
     }
 
-    public static Obj NULL() {
+    public static Obj NULL(String name) {
         class NullObj extends Obj {
+            public NullObj() {
+                super(null);
+            }
+
+            private NullPointerException ex = new NullPointerException(name);
+
             private WryException error() {
-                return new WryException(new NullPointerException(), Position.NONE);
+                return new WryException(ex, Position.NONE);
             }
 
             @Override
@@ -97,13 +111,30 @@ public class Obj {
         return new NullObj();
     }
 
+    public Obj(ClassObj classObj) {
+        this(classObj, null);
+    }
+
+    public Obj(ClassObj classObj, Obj superInstance) {
+        this.classObj = classObj;
+        this.superInstance = superInstance;
+    }
+
+    public static Obj NULL() {
+        return NULL("");
+    }
+
     protected Map<String, ObjField> fields = new HashMap<>();
 
     public boolean hasField(String name) {
-        return fields.containsKey(name);
+        return (classObj != null && classObj.getMethods().containsKey(name)) || fields.containsKey(name);
     }
 
     public ObjField getFieldWrapper(String name) {
+        if (classObj != null && classObj.getMethods().containsKey(name)) {
+            return new ObjField(classObj.classMethod(this, superInstance, name), false);
+        }
+
         return fields.get(name);
     }
 
@@ -154,6 +185,6 @@ public class Obj {
 
     @Override
     public String toString() {
-        return "Instance";
+        return "{ " + Joiner.on(", ").withKeyValueSeparator(": ").join(fields) + " }";
     }
 }
