@@ -62,6 +62,11 @@ public class WryIntrinsics {
         return new NumberObj(scope, System.currentTimeMillis());
     }
 
+    @Intrinsic("nanoTime")
+    public Obj nanoTime() {
+        return new NumberObj(scope, System.nanoTime());
+    }
+
     @Intrinsic(value = "plus", target = "String")
     public Obj stringPlus(StringObj self, Obj superObj, Obj o) {
         return new StringObj(scope, self.getValue() + o);
@@ -70,5 +75,10 @@ public class WryIntrinsics {
     @Intrinsic(value = "get", target = "Tuple")
     public Obj tupleGet(TupleObj self, Obj superObj, NumberObj i) {
         return self.getItems().get(i.intValue());
+    }
+
+    @Intrinsic(value = "compareTo", target = "Number")
+    public Obj numberCompare(NumberObj self, Obj superObj, NumberObj other) {
+        return new NumberObj(scope, Long.compare(self.getValue(), other.getValue()));
     }
 }

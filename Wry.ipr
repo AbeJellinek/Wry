@@ -180,6 +180,7 @@
         <w>eqeq</w>
         <w>exprs</w>
         <w>intrinsics</w>
+        <w>nano</w>
         <w>oror</w>
         <w>parselet</w>
         <w>parselets</w>

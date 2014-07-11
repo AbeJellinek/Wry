@@ -332,4 +332,17 @@ public class Scope implements ExprVisitor<Obj> {
             return Obj.NULL();
         }
     }
+
+    @Override
+    public Obj visit(WhileExpr expr) {
+        Expr conditionExpr = expr.getCondition();
+
+        Obj condition;
+        while ((condition = conditionExpr.accept(this)) != null &&
+                (!(condition instanceof BooleanObj) || ((BooleanObj) condition).getValue())) {
+            expr.getBody().accept(this);
+        }
+
+        return Obj.NULL(); // maybe return last?
+    }
 }

@@ -22,7 +22,21 @@ end
 
 def person(name) is { name: name, favoriteFood: "ice cream" }
 
-if (person("Me").favoriteFood == "ice cream") then
-    print("yes!")
-else
-    print("wat")
+def run() do
+    def op() do
+        "String" + time()
+    end
+
+    val trials = 100
+    var start = nanoTime()
+
+    var i = 0
+    while i < trials do
+        op()
+        i = i + 1
+    end
+
+    print((nanoTime() - start) / trials)
+end
+
+run()

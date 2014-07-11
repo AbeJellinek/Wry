@@ -35,6 +35,7 @@ public class Parser {
         prefix(TokenType.LEFT_BRACE, new RecordParselet());
         prefix(TokenType.CLASS, new ClassParselet());
         prefix(TokenType.IF, new IfParselet());
+        prefix(TokenType.WHILE, new WhileParselet());
 
         infix(TokenType.PLUS, Precedence.ADDITIVE);
         infix(TokenType.MINUS, Precedence.ADDITIVE);
@@ -51,7 +52,6 @@ public class Parser {
         infix(TokenType.ANDAND, Precedence.LOGICAL_OP);
         infix(TokenType.OROR, Precedence.LOGICAL_OP);
         infix(TokenType.BANG_EQ, Precedence.EQUALITY);
-        infix(TokenType.DO, new DoParselet());
         infix(TokenType.ASSOC, new AssocParselet());
         infix(TokenType.LEFT_PAREN, new CallParselet());
         infix(TokenType.LEFT_BRACKET, new GetParselet());

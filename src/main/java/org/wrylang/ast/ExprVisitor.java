@@ -36,4 +36,6 @@ public interface ExprVisitor<R> {
     public R visit(ClassExpr expr);
 
     public R visit(IfExpr expr);
+
+    public R visit(WhileExpr expr);
 }

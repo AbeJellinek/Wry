@@ -50,6 +50,6 @@ public class DoParselet implements PrefixParselet, InfixParselet {
 
     @Override
     public int getPrecedence() {
-        return Precedence.PREFIX;
+        return Precedence.POSTFIX;
     }
 }

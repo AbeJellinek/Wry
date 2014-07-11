@@ -29,7 +29,6 @@ public class IntrinsicGenerator {
                         if (obj.hasField(name)) {
                             obj.setField(name, lambda);
                         } else {
-                            // todo warning
                             obj.addField(name, lambda, false);
                         }
                     } else {

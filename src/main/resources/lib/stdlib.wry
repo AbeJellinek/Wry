@@ -38,6 +38,8 @@ class Number do
     def times(n) is native()
 
     def divide(n) is native()
+
+    def compareTo(n) is native()
 end
 
 def print(o) is native()
